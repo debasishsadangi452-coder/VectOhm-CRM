@@ -10,6 +10,12 @@ BEGIN
     SELECT "id" INTO sales_dept_id FROM "Department" WHERE "name" = 'Sales' LIMIT 1;
     SELECT "id" INTO jon_id FROM "User" WHERE "email" = 'jon@venushiring.com' LIMIT 1;
 
+    -- Fresh database: roles are created by the seed, not by migrations. Nothing to add yet;
+    -- seed.ts creates these users. Without this guard the insert violates User.roleId NOT NULL.
+    IF employee_role_id IS NULL THEN
+        RETURN;
+    END IF;
+
     -- 1. Insert or update avi@venushiring.com
     IF EXISTS (SELECT 1 FROM "User" WHERE "email" = 'avi@venushiring.com') THEN
         UPDATE "User"
