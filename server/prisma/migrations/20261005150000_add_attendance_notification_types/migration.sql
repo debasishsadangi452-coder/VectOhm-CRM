@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "NotificationType" ADD VALUE 'ATTENDANCE_LATE';
+ALTER TYPE "NotificationType" ADD VALUE 'ATTENDANCE_IDLE';

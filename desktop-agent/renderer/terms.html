@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Venus CRM Monitoring Notice</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    background: #0b0b0f;
+    color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .panel { width: 400px; display: flex; flex-direction: column; gap: 10px; }
+  h1 { font-size: 15px; margin: 0 0 2px; }
+  .version { font-size: 11px; color: #666; margin: 0 0 8px; }
+  #terms-body {
+    height: 320px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #16161c;
+    color: #ccc;
+    font-size: 12.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .hint { font-size: 11px; color: #999; min-height: 14px; }
+  .buttons { display: flex; gap: 8px; }
+  button {
+    flex: 1;
+    padding: 9px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #accept { background: #6366f1; color: white; }
+  #accept:disabled { opacity: 0.4; cursor: default; }
+  #decline { background: transparent; color: #999; border: 1px solid #333; }
+  .error { color: #f87171; font-size: 12px; min-height: 16px; }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <h1>Venus CRM Monitoring Notice</h1>
+    <div class="version" id="version"></div>
+    <div id="terms-body">Loading…</div>
+    <div class="hint" id="hint">Scroll to the bottom to continue.</div>
+    <div class="error" id="error"></div>
+    <div class="buttons">
+      <button id="decline" type="button">Decline</button>
+      <button id="accept" type="button" disabled>I Accept</button>
+    </div>
+  </div>
+  <script>
+    const bodyEl = document.getElementById("terms-body");
+    const versionEl = document.getElementById("version");
+    const hintEl = document.getElementById("hint");
+    const errorEl = document.getElementById("error");
+    const acceptBtn = document.getElementById("accept");
+    const declineBtn = document.getElementById("decline");
+
+    (async () => {
+      const terms = await window.omnios.getPendingTerms();
+      if (!terms) {
+        bodyEl.textContent = "Nothing to review right now.";
+        return;
+      }
+      versionEl.textContent = "Version " + terms.version;
+      bodyEl.textContent = terms.text;
+    })();
+
+    // Require scrolling to the bottom before Accept is enabled -- standard
+    // click-through-consent pattern. A small fudge factor (2px) accounts for
+    // sub-pixel rounding on some displays.
+    bodyEl.addEventListener("scroll", () => {
+      const atBottom = bodyEl.scrollTop + bodyEl.clientHeight >= bodyEl.scrollHeight - 2;
+      if (atBottom) {
+        acceptBtn.disabled = false;
+        hintEl.textContent = "";
+      }
+    });
+
+    acceptBtn.addEventListener("click", async () => {
+      errorEl.textContent = "";
+      acceptBtn.disabled = true;
+      acceptBtn.textContent = "Accepting…";
+      const result = await window.omnios.acceptTerms();
+      if (!result.ok) {
+        errorEl.textContent = result.error || "Could not record acceptance";
+        acceptBtn.disabled = false;
+        acceptBtn.textContent = "I Accept";
+      }
+      // On success the main process closes this window itself.
+    });
+
+    declineBtn.addEventListener("click", () => {
+      window.omnios.declineTerms();
+      // On decline the main process closes this window and returns to login.
+    });
+  </script>
+</body>
+</html>

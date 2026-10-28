@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8" /><title>Recorder</title></head>
+  <body>
+    <script>
+      // Hidden window whose only job is to run MediaRecorder: the Electron
+      // main process has no MediaRecorder/getUserMedia, so screen video has to
+      // be captured in a renderer and handed back as bytes.
+      //
+      // Never shown, never loads remote content, and holds no session -- main
+      // passes it a desktopCapturer source id and it returns a webm buffer.
+      const { ipcRenderer } = require("electron");
+
+      let recorder = null;
+      let stream = null;
+      let startedAt = 0;
+      // Pausing is supported (recorder:pause / recorder:resume), though main
+      // keeps recording through idle stretches; paused wall-clock time is
+      // excluded from durationSec so it reflects the video's real length.
+      let pausedAt = null;
+      let totalPausedMs = 0;
+
+      function cleanup() {
+        try { stream?.getTracks().forEach((t) => t.stop()); } catch {}
+        recorder = null;
+        stream = null;
+        pausedAt = null;
+        totalPausedMs = 0;
+      }
+
+      ipcRenderer.on("recorder:start", async (_e, opts) => {
+        const { sourceId, durationMs, width, height, frameRate, bitsPerSecond } = opts;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false, // deliberately video-only -- no microphone, ever
+            video: {
+              mandatory: {
+                chromeMediaSource: "desktop",
+                chromeMediaSourceId: sourceId,
+                // Downscaled and low-framerate on purpose: a full-res 3-minute
+                // clip is enormous, and 27 of them per employee per day has to
+                // fit on the volume.
+                maxWidth: width,
+                maxHeight: height,
+                maxFrameRate: frameRate,
+              },
+            },
+          });
+
+          // VP8 first: recording runs continuously all shift, and VP9's software
+          // encoder costs several times the CPU -- enough to slow down an older
+          // laptop. At this fixed low bitrate the files come out the same size.
+          const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp8")
+            ? "video/webm;codecs=vp8"
+            : MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+            ? "video/webm;codecs=vp9"
+            : "video/webm";
+          const chunks = [];
+          recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: bitsPerSecond });
+          startedAt = Date.now();
+          pausedAt = null;
+          totalPausedMs = 0;
+
+          recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+          recorder.onerror = (e) => {
+            cleanup();
+            ipcRenderer.send("recorder:failed", String(e.error || "recorder error"));
+          };
+          recorder.onstop = async () => {
+            if (pausedAt) totalPausedMs += Date.now() - pausedAt;
+            const durationSec = Math.round((Date.now() - startedAt - totalPausedMs) / 1000);
+            const blob = new Blob(chunks, { type: "video/webm" });
+            const buffer = new Uint8Array(await blob.arrayBuffer());
+            cleanup();
+            ipcRenderer.send("recorder:done", { buffer, durationSec });
+          };
+
+          recorder.start(1000);
+          setTimeout(() => { if (recorder && recorder.state !== "inactive") recorder.stop(); }, durationMs);
+        } catch (err) {
+          cleanup();
+          ipcRenderer.send("recorder:failed", String(err && err.message ? err.message : err));
+        }
+      });
+
+      // Clock-out mid-clip: stop now and keep the partial recording rather
+      // than throwing away the minutes already captured. Valid to call
+      // whether the recorder is currently running or paused.
+      ipcRenderer.on("recorder:stop", () => {
+        if (recorder && recorder.state !== "inactive") recorder.stop();
+      });
+
+      ipcRenderer.on("recorder:pause", () => {
+        if (recorder && recorder.state === "recording") {
+          recorder.pause();
+          pausedAt = Date.now();
+        }
+      });
+
+      ipcRenderer.on("recorder:resume", () => {
+        if (recorder && recorder.state === "paused") {
+          recorder.resume();
+          if (pausedAt) totalPausedMs += Date.now() - pausedAt;
+          pausedAt = null;
+        }
+      });
+    </script>
+  </body>
+</html>

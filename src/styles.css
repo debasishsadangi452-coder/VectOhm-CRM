@@ -1,0 +1,350 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/* Safelist tokens used via runtime string interpolation in dashboard */
+@source inline("bg-primary bg-success bg-violet bg-info bg-warning bg-destructive bg-text-dim");
+@source inline("text-primary text-success text-violet text-info text-warning text-destructive text-text-dim");
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Monolith Dark Pro — enterprise OS design tokens.
+ * Dark-first. Light mode included for future toggle.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-canvas: var(--canvas);
+  --color-panel: var(--panel);
+  --color-panel-elevated: var(--panel-elevated);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-violet: var(--violet);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-text-dim: var(--text-dim);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+/*
+ * Monolith Light Pro — enterprise OS design tokens.
+ * Light theme by default featuring crisp white, royal blue, vibrant orange, and crimson red.
+ */
+
+:root {
+  --radius: 0.625rem;
+
+  /* Crisp White Canvas & Elevated Panel Foundations */
+  --canvas: oklch(0.985 0.005 240);        /* Soft slate-50 background #F8FAFC */
+  --panel: oklch(1.0 0 0);                 /* Pure white panel & card #FFFFFF */
+  --panel-elevated: oklch(0.995 0.002 240); /* Elevated card / popover #FAFAFA */
+
+  --background: var(--canvas);
+  --foreground: oklch(0.18 0.03 250);      /* Deep Slate Navy #0F172A */
+
+  --card: var(--panel);
+  --card-foreground: oklch(0.18 0.03 250);
+  --popover: var(--panel);
+  --popover-foreground: oklch(0.18 0.03 250);
+
+  /* Primary Accent: Royal Sapphire Blue */
+  --primary: oklch(0.55 0.22 256);          /* Royal Sapphire Blue #2563EB */
+  --primary-foreground: oklch(1.0 0 0);     /* Pure White */
+
+  --secondary: oklch(0.965 0.015 250);      /* Ice Blue Tint #EFF6FF */
+  --secondary-foreground: oklch(0.42 0.20 256); /* Deep Royal Blue #1D4ED8 */
+
+  --muted: oklch(0.96 0.006 240);           /* Soft Light Slate #F1F5F9 */
+  --muted-foreground: oklch(0.48 0.02 240); /* Muted Slate #64748B */
+
+  --accent: oklch(0.96 0.018 250);          /* Soft Blue Highlight #F0F9FF */
+  --accent-foreground: oklch(0.35 0.20 256);
+
+  /* Color Palette Highlights: Vibrant Orange & Crimson Red */
+  --warning: oklch(0.68 0.22 45);           /* Premium Vibrant Orange #F97316 */
+  --destructive: oklch(0.58 0.24 25);       /* Premium Crimson Red #EF4444 */
+  --destructive-foreground: oklch(1.0 0 0);
+
+  --success: oklch(0.64 0.18 150);          /* Emerald Success #10B981 */
+  --info: oklch(0.60 0.19 240);             /* Sky Blue Info #0284C7 */
+  --violet: oklch(0.60 0.20 290);           /* Royal Indigo/Violet #7C3AED */
+
+  --border: oklch(0.90 0.01 240);           /* Slate-200 Border #E2E8F0 */
+  --border-subtle: oklch(0.94 0.008 240);    /* Slate-100 Border #F1F5F9 */
+  --input: oklch(0.90 0.01 240);
+  --ring: oklch(0.55 0.22 256);             /* Royal Blue Ring */
+  --text-dim: oklch(0.48 0.02 240);        /* Slate-500 #64748B */
+
+  /* Sidebar Design Token Definitions */
+  --sidebar: oklch(1.0 0 0);               /* Pure White Sidebar */
+  --sidebar-foreground: oklch(0.18 0.03 250);
+  --sidebar-primary: oklch(0.55 0.22 256);
+  --sidebar-primary-foreground: oklch(1.0 0 0);
+  --sidebar-accent: oklch(0.96 0.018 250);   /* Soft Blue Accent */
+  --sidebar-accent-foreground: oklch(0.40 0.22 256);
+  --sidebar-border: oklch(0.90 0.01 240);
+  --sidebar-ring: oklch(0.55 0.22 256);
+}
+
+/* Dark mode override option (activate via .dark class) */
+.dark {
+  --canvas: oklch(0.145 0.005 285);
+  --panel: oklch(0.185 0.006 285);
+  --panel-elevated: oklch(0.215 0.007 285);
+  --background: var(--canvas);
+  --foreground: oklch(0.97 0.003 285);
+  --card: var(--panel);
+  --card-foreground: oklch(0.97 0.003 285);
+  --popover: var(--panel-elevated);
+  --popover-foreground: oklch(0.97 0.003 285);
+  --primary: oklch(0.62 0.19 256);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.26 0.008 285);
+  --secondary-foreground: oklch(0.97 0.003 285);
+  --muted: oklch(0.24 0.008 285);
+  --muted-foreground: oklch(0.62 0.01 285);
+  --accent: oklch(0.28 0.01 285);
+  --accent-foreground: oklch(0.97 0.003 285);
+  --destructive: oklch(0.62 0.22 27);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.72 0.17 155);
+  --warning: oklch(0.78 0.15 75);
+  --info: oklch(0.7 0.15 220);
+  --violet: oklch(0.72 0.16 300);
+  --border: oklch(0.28 0.008 285);
+  --border-subtle: oklch(0.24 0.007 285);
+  --input: oklch(0.28 0.008 285);
+  --ring: oklch(0.62 0.19 256);
+  --text-dim: oklch(0.62 0.01 285);
+  --sidebar: oklch(0.17 0.006 285);
+  --sidebar-foreground: oklch(0.97 0.003 285);
+  --sidebar-primary: oklch(0.62 0.19 256);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.24 0.008 285);
+  --sidebar-accent-foreground: oklch(0.97 0.003 285);
+  --sidebar-border: oklch(0.24 0.007 285);
+  --sidebar-ring: oklch(0.62 0.19 256);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-primary) 30%, transparent);
+  }
+  /* Chrome/Edge/Safari render the native <input type="date"> calendar icon
+     in dark gray, which is invisible against this app's dark input
+     background -- same class of problem as the autofill fix below. Invert
+     it so it reads as a light, clickable icon instead. Firefox doesn't
+     support this pseudo-element, but its own date-input icon already
+     adapts to the surrounding color scheme. */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    opacity: 0.7;
+    cursor: pointer;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Autofill. Deliberately NOT inside @layer base.
+
+   Browsers paint autofilled fields with their own light background and text
+   color, which reads as a white box in this dark UI (and made the password
+   eye-toggle vanish, since it's drawn for a dark input). The background comes
+   from the UA sheet with !important, so `background-color` can never win --
+   the standard workaround is a huge inset box-shadow that covers the field,
+   plus -webkit-text-fill-color for the text.
+
+   The catch: `Input` (components/ui/input.tsx) carries Tailwind's `shadow-sm`
+   utility, and `@import "tailwindcss"` orders layers base < components <
+   utilities. A box-shadow declared in @layer base therefore loses to
+   `shadow-sm` and never paints -- which is exactly why the earlier version of
+   this fix appeared to do nothing. Unlayered rules outrank every layer, so
+   these live outside the cascade layers instead of reaching for !important.
+
+   The two selectors are separate rules on purpose: a browser that doesn't
+   recognize one selector in a list discards the entire rule, so merging
+   :-webkit-autofill (Chrome/Edge/Safari) with :autofill (standard, and the
+   only one Firefox matches) would break both.
+--------------------------------------------------------------------------- */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--color-foreground);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-panel) inset;
+  box-shadow: 0 0 0 1000px var(--color-panel) inset;
+  caret-color: var(--color-foreground);
+  /* Chrome re-applies its background on interaction; an absurd transition
+     delay keeps the override from being animated away. */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Firefox never matches :-webkit-autofill above. It also tints autofilled
+   fields with a UA `filter` rather than a background color, so clearing the
+   filter -- not the shadow -- is what actually restores the dark input there. */
+input:autofill,
+input:autofill:hover,
+input:autofill:focus,
+input:autofill:active {
+  filter: none;
+  -webkit-text-fill-color: var(--color-foreground);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-panel) inset;
+  box-shadow: 0 0 0 1000px var(--color-panel) inset;
+  caret-color: var(--color-foreground);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ---------------------------------------------------------------------------
+ * Ceipal ATS / Recruitment Manager Design System Rules
+ * --------------------------------------------------------------------------- */
+.ceipal-top-strip {
+  background-color: #1a2b4a !important;
+  color: #ffffff !important;
+}
+
+.ceipal-header-gradient {
+  background: linear-gradient(90deg, #0b5ed7 0%, #1467d6 100%) !important;
+  color: #ffffff !important;
+}
+
+.ceipal-eboarding-gradient {
+  background: linear-gradient(90deg, #0d2a54 0%, #123e7a 100%) !important;
+  color: #ffffff !important;
+}
+
+.ceipal-btn-blue {
+  background-color: #0b5ed7 !important;
+  color: #ffffff !important;
+}
+.ceipal-btn-blue:hover {
+  background-color: #1467d6 !important;
+}
+
+.ceipal-badge-counter {
+  background-color: #f43f5e !important;
+  color: #ffffff !important;
+}
+
+.ceipal-row-accent {
+  border-left: 4px solid #e11d48 !important;
+}
+
+.ceipal-canvas {
+  background-color: #eef1f6 !important;
+}
+
+.ceipal-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e6ec !important;
+}
+
+/* Print optimization: isolate and print only the applicant resume document, hiding all CRM toolbars, sidebars, and navigation */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+  
+  /* Hide all CRM chrome, sidebars, headers, buttons, navigation */
+  aside,
+  header,
+  nav,
+  button,
+  .no-print,
+  [data-sidebar="sidebar"],
+  .app-sidebar,
+  .sidebar,
+  div[data-sidebar] {
+    display: none !important;
+  }
+
+  #printable-resume-sheet {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+  }
+}
+
+/* Custom sleek scrollbars for CRM workspace */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+
+

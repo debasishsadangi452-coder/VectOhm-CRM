@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: omnios
+      POSTGRES_PASSWORD: omnios
+      POSTGRES_DB: omnios
+    ports:
+      - "5433:5432"
+    volumes:
+      - omnios_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omnios"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  omnios_pg_data:

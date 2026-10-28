@@ -1,0 +1,31 @@
+# Front door for the single-container deploy. Railway terminates TLS at its
+# edge and forwards plain HTTP to $PORT, so this listens on HTTP only.
+{
+	admin off
+	auto_https off
+	# Railway captures stdout/stderr as the service log.
+	log {
+		output stderr
+		format console
+	}
+}
+
+:{$PORT:8080} {
+	# API. handle_path strips the /api prefix, so /api/auth/login reaches the
+	# Nest controller mounted at /auth (controllers have no global prefix).
+	handle_path /api/* {
+		reverse_proxy 127.0.0.1:{$API_PORT:4001} {
+			# Let Nest see the real client IP/proto rather than 127.0.0.1.
+			header_up X-Forwarded-For {http.request.remote.host}
+			header_up X-Forwarded-Proto {http.request.scheme}
+		}
+	}
+
+	# Everything else: the TanStack Start SSR server, which also serves
+	# the hashed assets in .output/public.
+	handle {
+		reverse_proxy 127.0.0.1:{$WEB_PORT:3000}
+	}
+
+	encode gzip
+}

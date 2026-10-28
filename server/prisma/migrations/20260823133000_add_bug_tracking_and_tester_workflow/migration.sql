@@ -1,0 +1,10 @@
+-- Empty placeholder, not a real migration. This name is recorded as already
+-- applied (finished_at set) in local dev databases' _prisma_migrations table
+-- from before this migration was squashed/superseded -- see
+-- 20260913000000_recover_bug_seo_task_qa_schema's own comment, which
+-- describes the exact same class of drift and resolves it the same way
+-- (recreating an empty local file to match pre-existing DB history) rather
+-- than mutating the live database's migration bookkeeping table. The actual
+-- schema effects of this migration are already captured by later migrations
+-- (see 20260913000000_recover_bug_seo_task_qa_schema and neighbors), so this
+-- file intentionally applies nothing.

@@ -1,0 +1,46 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+.output
+.vinxi
+.tanstack/**
+.nitro
+*.local
+
+# Wrangler / Cloudflare
+.wrangler/
+.dev.vars
+
+# Local dev credentials -- never commit
+CREDENTIALS.md
+PROJECT_CREDENTIALS.md
+.env
+.env.*
+server/.env
+
+# Personal Claude Code permission overrides -- machine-specific, may include
+# infra resource IDs (Railway project/service scoping, etc.)
+.claude/settings.local.json
+
+# Locally-stored screen captures -- never commit (see ScreenshotStorageService)
+server/storage/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

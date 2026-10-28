@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "Venus CRM — Job Board Auto-Poster & Recruiter Copilot",
+  "version": "1.1.0",
+  "description": "Automate job postings to LinkedIn, Indeed, and Naukri directly from Venus CRM. 1-click requisition auto-fill and candidate sourcing.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Venus CRM Recruiter Copilot"
+  },
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "alarms",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*.linkedin.com/*",
+    "https://*.indeed.com/*",
+    "https://*.naukri.com/*",
+    "http://localhost:8080/*",
+    "http://127.0.0.1:8080/*",
+    "http://localhost:4001/*",
+    "http://127.0.0.1:4001/*",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "exclude_matches": [
+        "https://*.linkedin.com/*",
+        "https://*.indeed.com/*",
+        "https://*.naukri.com/*"
+      ],
+      "js": ["scripts/content-intent-scanner.js"],
+      "css": ["scripts/content-intent-scanner.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.linkedin.com/*"],
+      "js": ["scripts/content-linkedin.js"],
+      "css": ["scripts/content-widget.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.indeed.com/*"],
+      "js": ["scripts/content-indeed.js"],
+      "css": ["scripts/content-widget.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.naukri.com/*"],
+      "js": ["scripts/content-naukri.js"],
+      "css": ["scripts/content-widget.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

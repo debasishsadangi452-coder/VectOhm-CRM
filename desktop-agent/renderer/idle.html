@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Venus CRM</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    background: #0b0b0f;
+    color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .panel { width: 380px; display: flex; flex-direction: column; gap: 12px; }
+  h1 { font-size: 17px; margin: 0; }
+  p { font-size: 13px; color: #aaa; margin: 0; line-height: 1.5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid #333;
+    background: transparent;
+    color: #bbb;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .chip:hover { background: #1c1c24; color: #fff; }
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 80px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #16161c;
+    color: #eee;
+    font: inherit;
+    font-size: 13px;
+    resize: none;
+  }
+  button.primary {
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background: #6366f1;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button.primary:disabled { opacity: 0.4; cursor: default; }
+  .error { color: #f87171; font-size: 12px; min-height: 16px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+  <!-- Step 1: are you there? -->
+  <div class="panel" id="ask">
+    <h1>Hey, are you still working?</h1>
+    <p id="ask-detail">There's been no keyboard or mouse activity for a while.</p>
+    <button class="primary" id="yes" type="button">Yes, I'm working</button>
+  </div>
+
+  <!-- Step 2: why was the screen idle? -->
+  <form class="panel hidden" id="reason-form">
+    <h1>Why was your screen idle?</h1>
+    <p id="reason-detail"></p>
+    <div class="chips">
+      <button class="chip" type="button">In a meeting</button>
+      <button class="chip" type="button">On a call</button>
+      <button class="chip" type="button">Reading / reviewing documents</button>
+      <button class="chip" type="button">Away from desk</button>
+      <button class="chip" type="button">Lunch / personal break</button>
+      <button class="chip" type="button">Technical issue</button>
+      <button class="chip" type="button">Other</button>
+    </div>
+    <textarea id="reason" maxlength="500" placeholder="Type your reason…"></textarea>
+    <div class="error" id="error"></div>
+    <button class="primary" id="submit" type="submit" disabled>Send reason</button>
+  </form>
+
+  <script>
+    const ask = document.getElementById("ask");
+    const askDetail = document.getElementById("ask-detail");
+    const form = document.getElementById("reason-form");
+    const reasonDetail = document.getElementById("reason-detail");
+    const reasonEl = document.getElementById("reason");
+    const submitBtn = document.getElementById("submit");
+    const errorEl = document.getElementById("error");
+
+    function fmt(iso) {
+      return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
+
+    (async () => {
+      const info = await window.omnios.getIdlePrompt();
+      if (info) {
+        askDetail.textContent =
+          "There's been no keyboard or mouse activity since " + fmt(info.idleStartedAt) + ".";
+        reasonDetail.textContent =
+          "Your screen was idle from " + fmt(info.idleStartedAt) +
+          ". Your reason is sent to your admin and noted in your daily log.";
+      }
+    })();
+
+    document.getElementById("yes").addEventListener("click", () => {
+      ask.classList.add("hidden");
+      form.classList.remove("hidden");
+      reasonEl.focus();
+    });
+
+    function updateValid() {
+      submitBtn.disabled = reasonEl.value.trim().length < 3;
+    }
+    reasonEl.addEventListener("input", updateValid);
+    for (const chip of document.querySelectorAll(".chip")) {
+      chip.addEventListener("click", () => {
+        reasonEl.value = chip.textContent === "Other" ? "" : chip.textContent;
+        reasonEl.focus();
+        updateValid();
+      });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (submitBtn.disabled) return;
+      submitBtn.disabled = true;
+      errorEl.textContent = "";
+      const result = await window.omnios.submitIdleReason(reasonEl.value.trim());
+      if (!result.ok) {
+        errorEl.textContent = result.error;
+        updateValid();
+      }
+      // On success the app closes this window itself.
+    });
+  </script>
+</body>
+</html>

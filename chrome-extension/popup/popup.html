@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Venus CRM — Recruiter Copilot</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="venus-app">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-circle">
+          <svg class="logo-svg" viewBox="0 0 24 24" fill="none">
+            <defs>
+              <linearGradient id="venusLogoGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#818cf8"/>
+                <stop offset="50%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#ec4899"/>
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="10" stroke="url(#venusLogoGrad)" stroke-width="2" stroke-dasharray="3 3"/>
+            <path d="M12 4l1.8 5.4 5.4 1.8-5.4 1.8L12 18.4l-1.8-5.4L4.8 11.2l5.4-1.8L12 4z" fill="url(#venusLogoGrad)"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Venus CRM</h1>
+          <span class="tagline">Enterprise Talent Copilot</span>
+        </div>
+      </div>
+      <div class="connection-status" id="header-status">
+        <span class="status-indicator online" id="status-indicator"></span>
+        <span class="status-label" id="status-label">Connected</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="jobs" id="tab-jobs-btn">
+        <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+        <span>Requisitions</span>
+        <span class="counter-badge" id="jobs-count">0</span>
+      </button>
+      <button class="nav-tab" data-tab="sourcing" id="tab-sourcing-btn">
+        <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Sourcing</span>
+      </button>
+      <button class="nav-tab" data-tab="intent" id="tab-intent-btn">
+        <svg class="tab-svg tab-svg-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        <span>Intent News</span>
+        <span class="counter-badge vip-badge" id="intent-tab-badge">ERP AI</span>
+      </button>
+      <button class="nav-tab" data-tab="settings" id="tab-settings-btn">
+        <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- Toast message container -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Content Sections -->
+    <main class="main-content">
+      <!-- 1. Jobs Section -->
+      <section id="section-jobs" class="tab-section active">
+        <div class="search-bar">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="job-search-input" placeholder="Search by role, skills, or location...">
+          </div>
+          <button id="refresh-jobs-btn" class="icon-button" title="Refresh requisitions">
+            <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </button>
+        </div>
+
+        <div id="jobs-loading" class="state-message">
+          <div class="spinner"></div>
+          <span>Syncing open requisitions from Venus CRM...</span>
+        </div>
+
+        <div id="jobs-empty" class="state-message" style="display: none;">
+          <div class="empty-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="empty-svg">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+          </div>
+          <p>No open requisitions found.</p>
+          <a href="https://crm.venusglobaltech.com/recruitment" target="_blank" class="text-link">Create a requisition in CRM →</a>
+        </div>
+
+        <div id="jobs-list" class="cards-list"></div>
+      </section>
+
+      <!-- 2. Sourcing Section -->
+      <section id="section-sourcing" class="tab-section" style="display: none;">
+        <div id="candidate-detect-box" class="candidate-box">
+          <div class="candidate-header">
+            <div>
+              <h3>Candidate Profile Sourcing</h3>
+              <span class="sub-helper">Auto-extract from LinkedIn, Indeed & Naukri</span>
+            </div>
+            <button id="btn-rescan-candidate" class="btn-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg-xs">
+                <path d="M23 4v6h-6M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+              Rescan Page
+            </button>
+          </div>
+
+          <div id="sourcing-idle" class="empty-state">
+            <div class="empty-radar-wrap">
+              <div class="radar-ping"></div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="empty-svg">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <circle cx="19" cy="11" r="3"/>
+                <path d="M19 8v6M16 11h6"/>
+              </svg>
+            </div>
+            <h4>Ready to Source Candidates</h4>
+            <p>Navigate to any candidate profile on <strong>LinkedIn</strong>, <strong>Indeed</strong>, or <strong>Naukri</strong> to automatically extract their profile, skills, and contact info.</p>
+          </div>
+
+          <div id="sourcing-card" class="candidate-card" style="display: none;">
+            <div class="candidate-hero">
+              <div class="candidate-avatar" id="cand-avatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="avatar-svg">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <div class="candidate-info">
+                <h4 id="cand-name">Candidate Name</h4>
+                <p class="cand-title" id="cand-title">Current Title</p>
+                <p class="cand-loc" id="cand-loc">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mini-icon">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  Location detected
+                </p>
+              </div>
+            </div>
+
+            <div class="card-divider"></div>
+
+            <div class="form-group">
+              <label>Detected Core Skills</label>
+              <div class="cand-skills" id="cand-skills"></div>
+            </div>
+
+            <div class="form-group" style="margin-top: 8px;">
+              <label for="cand-job-select">Assign to Open Requisition</label>
+              <div class="select-wrapper">
+                <select id="cand-job-select" class="form-select"></select>
+              </div>
+            </div>
+
+            <button id="btn-import-candidate-action" class="btn-primary" style="margin-top: 10px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+              </svg>
+              <span>1-Click Import to Venus Pipeline</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Intent News Section -->
+      <section id="section-intent-news" class="tab-section" style="display: none;">
+        <div class="intent-scanner-box">
+          <div class="intent-header">
+            <div>
+              <h3>Enterprise Buying Intent</h3>
+              <span class="erp-tag-subtitle">⭐ Priority Engine: ERP AI Modernization</span>
+            </div>
+            <button id="btn-rescan-intent" class="btn-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg-xs">
+                <path d="M23 4v6h-6M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+              Rescan Tab
+            </button>
+          </div>
+
+          <div id="auto-browse-box" style="margin: 10px 0; padding: 9px 11px; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); font-size: 11px; color: #cbd5e1;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <label for="auto-browse-toggle" style="display: flex; align-items: center; gap: 6px; font-weight: 600; cursor: pointer;">
+                <input type="checkbox" id="auto-browse-toggle">
+                Auto-browse intent news
+              </label>
+              <button id="btn-auto-browse-now" class="btn-text">Run now</button>
+            </div>
+            <div id="auto-browse-status" style="margin-top: 4px; line-height: 1.4;">The CRM finds intent news every 3 hours. Keep this on to let Chrome read the full articles in background tabs every 30 min.</div>
+          </div>
+
+          <div id="intent-idle" class="empty-state" style="display: none;">
+            <div class="empty-radar-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="empty-svg">
+                <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6m-6 4h10"/>
+              </svg>
+            </div>
+            <h4>Active Tab Radar</h4>
+            <p>Open any enterprise press release, company announcement, or news article (Bloomberg, TechCrunch, PR Newswire) to detect ERP AI transformation triggers.</p>
+          </div>
+
+          <div id="intent-card" class="intent-analysis-card">
+            <!-- VIP Banner if ERP AI -->
+            <div id="intent-vip-banner" class="vip-intent-banner" style="display: none;">
+              <div class="vip-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="vip-star-svg">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </div>
+              <div class="vip-banner-text">
+                <strong>ERP AI MODERNIZATION DETECTED</strong>
+                <span>Strategic High-Priority Account</span>
+              </div>
+              <span class="vip-score" id="intent-score-badge">99/100</span>
+            </div>
+
+            <!-- Standard Banner -->
+            <div id="intent-std-banner" class="std-intent-banner" style="display: none;">
+              <div class="std-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="std-chart-svg">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+              </div>
+              <div class="vip-banner-text">
+                <strong>ENTERPRISE BUYING INTENT</strong>
+                <span>Strategic Growth Trigger</span>
+              </div>
+              <span class="std-score" id="intent-score-badge-std">70/100</span>
+            </div>
+
+            <!-- Hub / Newsroom Index Hint Banner -->
+            <div id="intent-hub-banner" style="display: none; padding: 7px 11px; margin-bottom: 10px; border-radius: 8px; font-size: 11px; line-height: 1.4; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.25); color: #cbd5e1;">
+              <div style="font-weight: 700; color: #818cf8; margin-bottom: 2px;">📍 Newsroom Portal Detected</div>
+              <span id="intent-hub-text">You are on the main press portal. Open any specific press release to auto-scan full ERP AI text, or ingest this enterprise directly.</span>
+            </div>
+
+            <div class="intent-meta-group">
+              <label>Article Headline</label>
+              <div id="intent-article-title" class="intent-title-text">Detecting active article...</div>
+            </div>
+
+            <div class="intent-row-2col">
+              <div class="form-group flex-1">
+                <label for="intent-company-input">Target Enterprise</label>
+                <input type="text" id="intent-company-input" class="form-input" placeholder="Company Name">
+              </div>
+              <div class="form-group" style="width: 130px;">
+                <label>Source Domain</label>
+                <div id="intent-source-domain" class="source-domain-pill">detecting...</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Detected ERP Ecosystem</label>
+              <div id="intent-erp-tags" class="tag-badges-container">
+                <span class="placeholder-tag">Scanning...</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>AI & Modernization Triggers</label>
+              <div id="intent-ai-tags" class="tag-badges-container">
+                <span class="placeholder-tag">Scanning...</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Target Decision-Makers (Apollo Auto-Match)</label>
+              <div id="intent-target-roles" class="target-roles-preview">
+                <span class="role-badge">Chief Information Officer</span>
+                <span class="role-badge">VP Enterprise Applications</span>
+                <span class="role-badge">Director of ERP</span>
+              </div>
+            </div>
+
+            <!-- Action Ingest Button -->
+            <button id="btn-ingest-intent-action" class="btn-primary btn-vip-gradient" style="margin-top: 14px; width: 100%;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="btn-svg">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+              <span>1-Click Ingest & Match Decision-Maker</span>
+            </button>
+
+            <!-- Result Box after Ingest -->
+            <div id="intent-ingest-result" class="ingest-result-card" style="display: none;">
+              <div class="result-header">
+                <span class="badge-success">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-svg">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Live in Venus CRM Pipeline
+                </span>
+              </div>
+              <div class="decision-maker-preview" id="intent-dm-preview">
+                <div class="dm-header">
+                  <div class="dm-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mini-svg">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <strong id="intent-dm-name">Executive</strong>
+                    <span id="intent-dm-title" class="dm-title">CIO / VP Applications</span>
+                  </div>
+                </div>
+                <div id="intent-dm-contact" class="dm-contact">
+                  <span id="intent-dm-email" class="contact-pill">Searching Apollo...</span>
+                  <span id="intent-dm-phone" class="contact-pill">📞 Available</span>
+                </div>
+              </div>
+              <div class="pitch-preview-box">
+                <div class="pitch-header">
+                  <span>AI-Drafted Outreach Pitch</span>
+                  <button id="btn-copy-pitch" class="btn-xs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg-xs">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    Copy Pitch
+                  </button>
+                </div>
+                <textarea id="intent-pitch-text" readonly rows="4" class="pitch-textarea"></textarea>
+              </div>
+              <a href="https://crm.venusglobaltech.com/intent-hiring?tab=scraped" target="_blank" class="text-link text-center" style="display: block; margin-top: 10px;">
+                Open in Venus CRM Pipeline →
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Settings Section -->
+      <section id="section-settings" class="tab-section" style="display: none;">
+        <div class="settings-form">
+          <div class="form-group">
+            <label for="setting-server-url">Venus CRM Backend API URL</label>
+            <input type="text" id="setting-server-url" class="form-input" value="https://crm.venusglobaltech.com">
+            <span class="helper-text">Direct API endpoint for syncing requisitions and pipeline leads</span>
+          </div>
+
+          <div class="account-card" id="account-logged-in" style="display: none;">
+            <div class="account-details">
+              <div class="account-avatar" id="user-avatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="avatar-svg">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <div>
+                <strong id="user-name">Recruiter Name</strong>
+                <span class="user-email" id="user-email">recruiter@company.com</span>
+              </div>
+            </div>
+            <button id="btn-logout" class="btn-secondary btn-sm">Sign Out</button>
+          </div>
+
+          <div class="login-card" id="account-logged-out">
+            <div class="login-header">
+              <div class="lock-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="lock-svg">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+              <div>
+                <h4>Recruiter Authentication</h4>
+                <p class="helper-text">Sign in to sync private pipeline requisitions and import candidates directly to SOURCED.</p>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <input type="email" id="login-email" class="form-input" placeholder="recruiter@venus.com">
+            </div>
+            <div class="form-group">
+              <input type="password" id="login-password" class="form-input" placeholder="Password">
+            </div>
+            <button id="btn-login" class="btn-primary" style="margin-top: 8px;">
+              <span>Sign In to Venus CRM</span>
+            </button>
+          </div>
+
+          <div class="settings-actions">
+            <button id="btn-save-settings" class="btn-secondary">Save Configuration</button>
+            <a href="https://crm.venusglobaltech.com/careers" target="_blank" class="btn-secondary text-center">Open Public Careers Portal ↗</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-channels">
+        <span class="dot-beacon"></span>
+        <span>LinkedIn • Indeed • Naukri Sync</span>
+      </div>
+      <a href="https://crm.venusglobaltech.com/recruitment" target="_blank" class="footer-link">
+        <span>Recruitment Center</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mini-svg">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

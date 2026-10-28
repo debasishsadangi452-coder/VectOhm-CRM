@@ -1,0 +1,47 @@
+# Host node_modules must never reach the build: it contains Windows-native
+# binaries (Prisma engines, rolldown) that break in a Linux container. Each
+# stage installs its own.
+node_modules
+server/node_modules
+
+# Build outputs - regenerated inside the image.
+dist
+dist-ssr
+.output
+.nitro
+.vinxi
+.tanstack
+server/dist
+
+# Secrets. The container reads config from Railway env vars instead.
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+.dev.vars
+CREDENTIALS.md
+PROJECT_CREDENTIALS.md
+
+# Local-only tooling and VCS.
+.git
+.gitignore
+.github
+.claude
+.vscode
+.idea
+.wrangler
+
+# Logs and scratch files.
+*.log
+logs
+*.local
+
+# Docs and compose (compose is for local Postgres only).
+AGENTS.md
+PROJECT_STATUS.md
+README.md
+server/docker-compose.yml
+Dockerfile
+.dockerignore

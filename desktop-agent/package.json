@@ -1,0 +1,78 @@
+{
+  "name": "venus-crm-desktop",
+  "version": "0.7.5",
+  "private": true,
+  "description": "Venus CRM as a native desktop app -- opens the real website in its own window (no browser bars), and, per a disclosed company policy the employee must accept, records the screen continuously while signed in (starts with the computer) and, while clocked in, reports an active/idle signal + keystroke/click counts (numbers only, never content). Never writes recordings to local disk.",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "npm run build && electron .",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac"
+  },
+  "dependencies": {
+    "uiohook-napi": "^1.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "electron": "^32.2.0",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.3",
+    "typescript": "^5.7.2"
+  },
+  "build": {
+    "appId": "com.venuscrm.desktopagent",
+    "productName": "Venus CRM",
+    "icon": "build/icon.ico",
+    "npmRebuild": false,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "renderer/**/*"
+    ],
+    "asarUnpack": [
+      "**/node_modules/uiohook-napi/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": false
+    },
+    "extraResources": [
+      {
+        "from": "build/icon.ico",
+        "to": "icon.ico"
+      }
+    ],
+    "nsis": {
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "include": "build/installer.nsh"
+    },
+    "afterPack": "scripts/after-pack-adhoc-sign.cjs",
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.business",
+      "identity": null,
+      "hardenedRuntime": false,
+      "extendInfo": {
+        "NSCameraUsageDescription": "Not used.",
+        "NSScreenCaptureUsageDescription": "Venus CRM records the screen during clocked-in hours, per company policy."
+      }
+    },
+    "dmg": {
+      "artifactName": "Venus CRM ${version} ${arch}.dmg"
+    }
+  }
+}
